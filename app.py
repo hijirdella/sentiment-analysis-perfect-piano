@@ -3,12 +3,12 @@ import joblib
 import pandas as pd
 
 # --- Load model dan komponen ---
-model = joblib.load('RidgeClassifier - Ukulele by Yousician.pkl')
-vectorizer = joblib.load('tfidf_vectorizer_Ukulele by Yousician.pkl')
-label_encoder = joblib.load('label_encoder_Ukulele by Yousician.pkl')
+model = joblib.load('RidgeClassifier - Perfect Piano.pkl')
+vectorizer = joblib.load('tfidf_vectorizer_Perfect Piano.pkl')
+label_encoder = joblib.load('label_encoder_Perfect Piano.pkl')
 
 # --- Judul App ---
-st.title("🎵 Sentiment Analysis - Ukulele by Yousician")
+st.title("🎹 Sentiment Analysis - Perfect Piano App")
 
 # --- Pilih Mode ---
 st.header("Pilih Metode Input")
@@ -58,7 +58,7 @@ else:
                 st.download_button(
                     label="📥 Download Hasil",
                     data=csv_result,
-                    file_name="predicted_reviews.csv",
+                    file_name="predicted_reviews_perfect_piano.csv",
                     mime="text/csv"
                 )
         except Exception as e:
