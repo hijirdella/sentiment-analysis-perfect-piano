@@ -86,3 +86,17 @@ else:
                 X_vec = vectorizer.transform(df['review'].fillna(""))
                 y_pred = model.predict(X_vec)
                 df['predicted_sentiment'] = label_encoder.inverse_transform(y_pred)
+
+                st.success("✅ Prediksi berhasil!")
+                st.dataframe(df.head())
+
+                # Download hasil
+                csv_result = df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label="📥 Download Hasil CSV",
+                    data=csv_result,
+                    file_name="predicted_reviews_perfect_piano.csv",
+                    mime="text/csv"
+                )
+        except Exception as e:
+            st.error(f"❌ Terjadi error saat membaca file: {e}")
