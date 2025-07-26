@@ -2,9 +2,9 @@ import streamlit as st
 import joblib
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 import pytz
 from datetime import datetime
-from matplotlib.ticker import FuncFormatter
 
 # === Load model dan komponen ===
 model = joblib.load('RidgeClassifier - Perfect Piano.pkl')
@@ -16,6 +16,7 @@ label_map = {'positive': 'Positif', 'negative': 'Negatif'}
 color_map = {'Positif': 'blue', 'Negatif': 'red'}
 
 # === Judul Aplikasi ===
+st.set_page_config(page_title="🎹 Sentiment App – Perfect Piano", layout="centered")
 st.title("🎹 Aplikasi Analisis Sentimen – Perfect Piano")
 
 # === Pilih Mode Input ===
@@ -38,6 +39,7 @@ if input_mode == "📝 Input Manual":
 
     review_day = st.date_input("📅 Tanggal:", value=now_wib.date())
     review_time = st.time_input("⏰ Waktu:", value=now_wib.time())
+
     review_datetime = datetime.combine(review_day, review_time)
     review_datetime_wib = wib.localize(review_datetime)
     review_date_str = review_datetime_wib.strftime("%Y-%m-%d %H:%M")
@@ -86,7 +88,7 @@ else:
 
             required_cols = {'name', 'star_rating', 'date', 'review'}
             if not required_cols.issubset(df.columns):
-                st.error("File tidak valid. Kolom wajib: 'name', 'star_rating', 'date', 'review'.")
+                st.error(f"❌ File harus memiliki kolom: {', '.join(required_cols)}.")
             else:
                 df['review'] = df['review'].fillna("")
                 X_vec = vectorizer.transform(df['review'])
@@ -98,6 +100,7 @@ else:
                 # === Filter Tanggal ===
                 min_date = df['date'].min().date()
                 max_date = df['date'].max().date()
+
                 st.subheader("🗓️ Filter Rentang Tanggal")
                 start_date = st.date_input("Mulai", min_value=min_date, max_value=max_date, value=min_date)
                 end_date = st.date_input("Selesai", min_value=min_date, max_value=max_date, value=max_date)
@@ -131,15 +134,12 @@ else:
                 for bar in bars:
                     height = bar.get_height()
                     ax_bar.text(bar.get_x() + bar.get_width() / 2, height + 0.01 * height,
-                                f'{int(height):,}', ha='center', va='bottom', fontsize=10)
+                                f'{int(height):,}'.replace(',', '.'), ha='center', va='bottom', fontsize=10)
 
+                ax_bar.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'.replace(',', '.')))
                 ax_bar.set_ylabel("Jumlah")
                 ax_bar.set_xlabel("Sentimen")
                 ax_bar.set_title("Distribusi Sentimen Pengguna – Perfect Piano")
-
-                # Format ribuan sumbu Y
-                ax_bar.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x):,}'))
-
                 st.pyplot(fig_bar)
 
                 # === Pie Chart ===
@@ -149,7 +149,7 @@ else:
 
                 def autopct_format(pct, allvals):
                     absolute = int(round(pct / 100. * sum(allvals)))
-                    return f"{pct:.1f}%\n({absolute:,})"
+                    return f"{pct:.1f}%\n({absolute:,})".replace(',', '.')
 
                 fig_pie, ax_pie = plt.subplots()
                 ax_pie.pie(
@@ -157,7 +157,8 @@ else:
                     labels=pie_data.index,
                     colors=pie_colors,
                     autopct=lambda pct: autopct_format(pct, pie_data),
-                    startangle=90
+                    startangle=90,
+                    textprops={'fontsize': 10}
                 )
                 ax_pie.axis('equal')
                 st.pyplot(fig_pie)
